@@ -34,13 +34,17 @@ This repository provides the example firmware for the MX-5 Vent Display. There a
 4. Connect the MX-5 Display to your PC via USB.
 5. Click the **"Upload"** button (the right-pointing arrow `→`) in the PlatformIO bottom taskbar.
 
-# Wiring Pinout
+## 🔌 Wiring & Pinout
 
-1 -> red     -> 4-28V DC IN
-2 -> brown   -> USB Data +
-3 -> green   -> USB Data -
-4 -> yellow  -> Ambiente Dimmer
-5 -> grey    -> Sensor 
-6 -> pink    -> CAN Low
-7 -> blue    -> CAN High
-8 -> white   -> GND
+The hardware kit connects to your MX-5 using an 8-pin harness. Here is the pinout configuration:
+
+| Pin | Wire Color | Function | Description |
+|:---:|:---|:---|:---|
+| **1** | 🔴 Red | `VCC IN` | 4-28V DC Power (Switched 12V Ignition recommended) |
+| **2** | 🟤 Brown | `USB D+` | USB Data Plus (for firmware updates) |
+| **3** | 🟢 Green | `USB D-` | USB Data Minus (for firmware updates) |
+| **4** | 🟡 Yellow | `Dimmer` | Ambient Dimmer (Connect to car's illumination line) |
+| **5** | ⚪ Grey | `Sensor` | External Sensor Input |
+| **6** | 🟣 Pink | `CAN L` | CAN-Bus Low |
+| **7** | 🔵 Blue | `CAN H` | CAN-Bus High |
+| **8** | ⚪ White | `GND` | Ground (Chassis GND) |
