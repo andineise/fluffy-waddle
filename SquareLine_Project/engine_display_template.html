@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engine Monitor Display Template</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .display-container {
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0, 150, 255, 0.3);
+            border: 2px solid #333;
+        }
+
+        /* Hauptansicht - Kreisförmiges Layout */
+        .main-view {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Zentraler Boost-Wert */
+        .center-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+
+        .center-value .value {
+            font-size: 42px;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .center-value .label {
+            font-size: 11px;
+            color: #888;
+            margin-top: -5px;
+        }
+
+        .center-value .unit {
+            font-size: 14px;
+            color: #00ff88;
+        }
+
+        /* Kreisförmig angeordnete Werte */
+        .circular-value {
+            position: absolute;
+            width: 60px;
+            text-align: center;
+        }
+
+        .circular-value .icon {
+            font-size: 18px;
+            margin-bottom: 2px;
+        }
+
+        .circular-value .value {
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .circular-value .unit {
+            font-size: 9px;
+            color: #666;
+        }
+
+        /* Positionen für 6 Werte im Kreis */
+        .val-1 { top: 15px; left: 50%; transform: translateX(-50%); } /* Oben */
+        .val-2 { top: 45px; right: 25px; } /* Oben rechts */
+        .val-3 { bottom: 45px; right: 25px; } /* Unten rechts */
+        .val-4 { bottom: 15px; left: 50%; transform: translateX(-50%); } /* Unten */
+        .val-5 { bottom: 45px; left: 25px; } /* Unten links */
+        .val-6 { top: 45px; left: 25px; } /* Oben links */
+
+        /* Farbkodierung für Werte */
+        .normal { color: #00ff88; }
+        .warning { color: #ffaa00; }
+        .critical { color: #ff3333; }
+
+        /* Kreisförmiger Fortschrittsring */
+        .progress-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .progress-bg {
+            stroke: #1a1a1a;
+        }
+
+        .progress-fill {
+            stroke: url(#gradient);
+            stroke-dasharray: 565;
+            stroke-dashoffset: 282;
+            transition: stroke-dashoffset 0.3s ease;
+        }
+
+        /* Alternative Listenansicht */
+        .list-view {
+            display: none;
+            padding: 10px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            border-left: 3px solid;
+        }
+
+        .list-item.normal { border-left-color: #00ff88; }
+        .list-item.warning { border-left-color: #ffaa00; }
+        .list-item.critical { border-left-color: #ff3333; }
+
+        .list-item-label {
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .list-item-value {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* View Toggle Button */
+        .view-toggle {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 30px;
+            height: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .view-toggle:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Warnindikator */
+        .warning-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Info Panel */
+        .info-panel {
+            max-width: 600px;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 10px;
+        }
+
+        h2 { color: #00ff88; margin-top: 0; }
+        h3 { color: #0096ff; margin-top: 20px; }
+        
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .spec-item {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid #00ff88;
+        }
+
+        code {
+            background: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #00ff88;
+        }
+    </style>
+</head>
+<body>
+    <div class="display-container">
+        <!-- Hauptansicht -->
+        <div class="main-view" id="mainView">
+            <!-- Fortschrittsring für Boost -->
+            <svg class="progress-ring">
+                <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00ff88;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#0096ff;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <circle class="progress-bg" cx="90" cy="90" r="90"></circle>
+                <circle class="progress-fill" cx="90" cy="90" r="90"></circle>
+            </svg>
+
+            <!-- Zentraler Boost-Wert -->
+            <div class="center-value">
+                <div class="value">1.25</div>
+                <div class="label">BOOST</div>
+                <div class="unit">bar</div>
+            </div>
+
+            <!-- Kreisförmig angeordnete Werte -->
+            <div class="circular-value val-1">
+                <div class="icon">🌡️</div>
+                <div class="value normal">92</div>
+                <div class="unit">°C H₂O</div>
+            </div>
+
+            <div class="circular-value val-2">
+                <div class="icon">🛢️</div>
+                <div class="value normal">105</div>
+                <div class="unit">°C ÖL</div>
+            </div>
+
+            <div class="circular-value val-3">
+                <div class="icon">⚡</div>
+                <div class="value warning">4.2</div>
+                <div class="unit">bar ÖL</div>
+            </div>
+
+            <div class="circular-value val-4">
+                <div class="icon">🔥</div>
+                <div class="value critical">820</div>
+                <div class="unit">°C EGT</div>
+            </div>
+
+            <div class="circular-value val-5">
+                <div class="icon">λ</div>
+                <div class="value normal">0.95</div>
+                <div class="unit">AFR</div>
+            </div>
+
+            <div class="circular-value val-6">
+                <div class="icon">💨</div>
+                <div class="value normal">38</div>
+                <div class="unit">°C IAT</div>
+            </div>
+
+            <!-- Statusindikator -->
+            <div class="warning-indicator"></div>
+        </div>
+
+        <!-- Listenansicht (alternativ) -->
+        <div class="list-view" id="listView">
+            <div class="list-item normal">
+                <span class="list-item-label">Ladedruck</span>
+                <span class="list-item-value normal">1.25 bar</span>
+            </div>
+            <div class="list-item normal">
+                <span class="list-item-label">Wassertemp.</span>
+                <span class="list-item-value normal">92°C</span>
+            </div>
+            <div class="list-item normal">
+                <span class="list-item-label">Öltemperatur</span>
+                <span class="list-item-value normal">105°C</span>
+            </div>
+            <div class="list-item warning">
+                <span class="list-item-label">Öldruck</span>
+                <span class="list-item-value warning">4.2 bar</span>
+            </div>
+            <div class="list-item critical">
+                <span class="list-item-label">Abgastemp.</span>
+                <span class="list-item-value critical">820°C</span>
+            </div>
+            <div class="list-item normal">
+                <span class="list-item-label">Lambda</span>
+                <span class="list-item-value normal">0.95</span>
+            </div>
+            <div class="list-item normal">
+                <span class="list-item-label">Ansaugluft</span>
+                <span class="list-item-value normal">38°C</span>
+            </div>
+        </div>
+
+        <!-- View Toggle -->
+        <div class="view-toggle" onclick="toggleView()">⚙️</div>
+    </div>
+
+    <div class="info-panel">
+        <h2>🎯 Design-Konzept für Squareline Studio</h2>
+        
+        <h3>Layout-Strategie</h3>
+        <p>Das Design nutzt die runde Form optimal aus mit einem zentralen Hauptwert (Ladedruck) und sechs kreisförmig angeordneten Sekundärwerten. Der Fortschrittsring visualisiert den Boost-Level dynamisch.</p>
+
+        <h3>LVGL 8.3 Implementierung</h3>
+        <div class="spec-grid">
+            <div class="spec-item">
+                <strong>Container:</strong><br>
+                <code>lv_obj_t* main_cont</code><br>
+                Radius: 120px, Hintergrund: #000000
+            </div>
+            <div class="spec-item">
+                <strong>Zentral-Label:</strong><br>
+                <code>lv_label</code><br>
+                Font: lv_font_montserrat_42
+            </div>
+            <div class="spec-item">
+                <strong>Arc (Boost):</strong><br>
+                <code>lv_arc</code><br>
+                Größe: 180x180, Dicke: 3px
+            </div>
+            <div class="spec-item">
+                <strong>Wert-Labels:</strong><br>
+                <code>lv_label</code> Array[6]<br>
+                Font: lv_font_montserrat_20
+            </div>
+        </div>
+
+        <h3>Farbschema</h3>
+        <ul>
+            <li><strong>Normal:</strong> #00FF88 (Grün) - Werte im optimalen Bereich</li>
+            <li><strong>Warnung:</strong> #FFAA00 (Orange) - Grenzwerte erreicht</li>
+            <li><strong>Kritisch:</strong> #FF3333 (Rot) - Sofortige Aufmerksamkeit erforderlich</li>
+        </ul>
+
+        <h3>Squareline Studio Setup</h3>
+        <ol>
+            <li>Erstelle ein neues Projekt: 240x240px, Color depth: 16bit</li>
+            <li>Setze Background auf schwarz (#000000)</li>
+            <li>Füge Container mit <code>lv_obj_set_style_radius(cont, 120, 0)</code> hinzu</li>
+            <li>Platziere Arc-Widget für Boost-Visualisierung (0-360°)</li>
+            <li>Erstelle Label-Widgets mit absoluter Positionierung</li>
+            <li>Nutze Events für Werteaktualisierung: <code>lv_label_set_text_fmt()</code></li>
+        </ol>
+
+        <h3>Optimierungen für kleines Display</h3>
+        <ul>
+            <li>Minimale Font-Größen: 9px für Einheiten, 11px für Labels</li>
+            <li>Hohe Kontraste für bessere Lesbarkeit</li>
+            <li>Icons als visuelle Anker für schnelle Orientierung</li>
+            <li>Alternative Listenansicht für detaillierte Übersicht</li>
+        </ul>
+    </div>
+
+    <script>
+        let currentView = 'main';
+        
+        function toggleView() {
+            const mainView = document.getElementById('mainView');
+            const listView = document.getElementById('listView');
+            
+            if (currentView === 'main') {
+                mainView.style.display = 'none';
+                listView.style.display = 'block';
+                currentView = 'list';
+            } else {
+                mainView.style.display = 'flex';
+                listView.style.display = 'none';
+                currentView = 'main';
+            }
+        }
+
+        // Simuliere dynamische Werte
+        setInterval(() => {
+            const boostValue = (0.8 + Math.random() * 0.8).toFixed(2);
+            document.querySelector('.center-value .value').textContent = boostValue;
+            
+            // Update progress ring
+            const progress = (parseFloat(boostValue) / 2.0) * 565;
+            document.querySelector('.progress-fill').style.strokeDashoffset = 565 - progress;
+            
+            // Zufällige Statusänderung für Demo
+            const indicator = document.querySelector('.warning-indicator');
+            const random = Math.random();
+            if (random < 0.7) {
+                indicator.style.background = '#00ff88';
+            } else if (random < 0.9) {
+                indicator.style.background = '#ffaa00';
+            } else {
+                indicator.style.background = '#ff3333';
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

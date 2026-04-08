@@ -1,0 +1,109 @@
+{
+	"name": "uBlox1",
+	"tabs": [
+		{
+			"id": "f355b5cf-d1ba-4243-8cb5-c0009a2e1c60",
+			"name": "Consoles",
+			"position": 0,
+			"views": [
+				{
+					"id": "64a5114f-bd89-41db-8ba0-037244d6769f",
+					"x": 0,
+					"y": 0,
+					"w": 9,
+					"h": 16,
+					"isResizable": true,
+					"type": "console",
+					"settings": {
+						"type": "packet"
+					}
+				},
+				{
+					"id": "b3b58631-accc-4ed2-a7dc-8f109795a68f",
+					"x": 0,
+					"y": 16,
+					"w": 9,
+					"h": 27,
+					"isResizable": true,
+					"type": "console",
+					"settings": {
+						"type": "binary",
+						"filters": []
+					}
+				}
+			]
+		},
+		{
+			"id": "c318ee45-0a21-4719-a875-422f354527d4",
+			"name": "Views",
+			"position": 0,
+			"views": [
+				{
+					"id": "06da51be-dcdd-46a5-9550-179f63ca0c70",
+					"x": 0,
+					"y": 0,
+					"w": 4,
+					"h": 16,
+					"isResizable": true,
+					"type": "satellitePosition",
+					"settings": {
+						"showNotTracked": true,
+						"zoom": 12,
+						"constellationFilter": {
+							"0": true,
+							"1": true,
+							"2": true,
+							"3": true,
+							"4": true,
+							"5": true,
+							"6": true,
+							"7": true
+						}
+					}
+				},
+				{
+					"id": "18f3a580-8013-4c28-8088-32a599882ce8",
+					"x": 6,
+					"y": 16,
+					"w": 2,
+					"h": 16,
+					"isResizable": false,
+					"type": "data",
+					"settings": {}
+				},
+				{
+					"id": "75355267-420b-42a0-9a24-0e247ec940de",
+					"x": 4,
+					"y": 0,
+					"w": 4,
+					"h": 16,
+					"isResizable": true,
+					"type": "map",
+					"settings": {
+						"mapStyleId": "streets-v11",
+						"zoom": 13.795770983509035,
+						"enableProtectionLevel": false,
+						"enablePositionAccuracy": false,
+						"breadcrumbCircleDrawRecurrenceLimit": 0,
+						"enableFollowPosition": true,
+						"viewLatitude": 51.7486615,
+						"viewLongitude": 8.722269500000001,
+						"showBuildings": false
+					}
+				},
+				{
+					"id": "fd641dc8-9919-46d4-b541-49d210187ed0",
+					"x": 0,
+					"y": 16,
+					"w": 6,
+					"h": 16,
+					"isResizable": true,
+					"type": "satelliteSignal",
+					"settings": {
+						"showLegend": false
+					}
+				}
+			]
+		}
+	]
+}
