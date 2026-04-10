@@ -21,6 +21,7 @@
 
 // Globals
 static const bool RACECHRONO_PRO_MODE = true; // true = RaceChrono DIY Protocol (GPS + CAN, Pro required)
+static constexpr bool ENABLE_GPS_BLE = true; // Set false to disable GPS+BLE together
 
 String BtName;
 BleNmeaUart BleNmea;
@@ -293,6 +294,7 @@ void TaskGPS(void *pvParameters) {
                 gpsPacketCount++;
                 
                 // Sofort nach jedem UBX NAV-PVT Paket an RaceChrono senden!
+#if ENABLE_GPS_BLE
                 if (BleNmea.isConnected()) {
                     lastBleSend = millis();
                     
@@ -308,6 +310,13 @@ void TaskGPS(void *pvParameters) {
                         BleNmea.sendLocationSpeed(GpsUbx);
                     }
                 }
+#else
+                (void) lastBleSend;
+                const bool gpsOk = GpsUbx.hasFix() && (GpsUbx.numSats() > 2);
+                if (gpsOk) {
+                    lastValidFixMs = millis();
+                }
+#endif
             }
         }
         
@@ -343,12 +352,14 @@ void setup() {
     // Create Mutex for shared resources (LVGL)
     lvglMutex = xSemaphoreCreateMutex();
 
-    // GPS Init
-    GpsUbx.begin(38400, GPS_RX, GPS_TX);
-    GpsUbx.configureUbx();
-
-    // BLE Init
-    BleNmea.begin(BtName, RACECHRONO_PRO_MODE);
+    // GPS + BLE Init
+    if constexpr (ENABLE_GPS_BLE) {
+        GpsUbx.begin(38400, GPS_RX, GPS_TX);
+        GpsUbx.configureUbx();
+        BleNmea.begin(BtName, RACECHRONO_PRO_MODE);
+    } else {
+        Serial.println("GPS + BLE disabled by configuration");
+    }
 
     pinMode(TFT_BL, OUTPUT);
     pinMode(dimPin, INPUT);
@@ -407,7 +418,11 @@ void setup() {
     // CAN ist nur 10Hz, GUI nur 50Hz nötig
     
     // GPS Task - HÖCHSTE Priorität, Core 0 (wo BLE läuft)
-    xTaskCreatePinnedToCore(TaskGPS, "GPS", STACK_GPS, NULL, PRIO_GPS, NULL, 0);
+    if constexpr (ENABLE_GPS_BLE) {
+        xTaskCreatePinnedToCore(TaskGPS, "GPS", STACK_GPS, NULL, PRIO_GPS, NULL, 0);
+    } else {
+        Serial.println("Skipping GPS task because GPS + BLE are disabled");
+    }
     
     // GUI Task - Mittlere Priorität, Core 1
     xTaskCreatePinnedToCore(TaskGUI, "GUI", STACK_GUI, NULL, PRIO_GUI, NULL, 1);

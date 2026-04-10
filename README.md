@@ -40,11 +40,11 @@ The hardware kit connects to your MX-5 using an 8-pin harness. Here is the pinou
 
 | Pin | Wire Color | Function | Description |
 |:---:|:---|:---|:---|
-| **1** | 🔴 Red | `VCC IN` | 4-28V DC Power (Switched 12V Ignition recommended) |
+| **1** | 🔴 Red | `GND` | Ground (Chassis GND) |
 | **2** | 🟤 Brown | `USB D+` | USB Data Plus (for firmware updates) |
 | **3** | 🟢 Green | `USB D-` | USB Data Minus (for firmware updates) |
 | **4** | 🟡 Yellow | `Dimmer` | Ambient Dimmer (Connect to car's illumination line) |
 | **5** | ⚪ Grey | `Sensor` | External Sensor Input |
 | **6** | 🟣 Pink | `CAN L` | CAN-Bus Low |
 | **7** | 🔵 Blue | `CAN H` | CAN-Bus High |
-| **8** | ⚪ White | `GND` | Ground (Chassis GND) |
+| **8** | ⚪ White | `VCC IN` | 4-28V DC Power (Switched 12V Ignition recommended) |
